@@ -5,6 +5,7 @@ import android.content.Context;
 import com.paymentez.android.util.PaymentezUtils;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -24,14 +25,17 @@ import static com.paymentez.android.util.PaymentezUtils.SERVER_PROD_URL;
 public class PaymenezClient {
 
     private static Retrofit retrofit = null;
-    static OkHttpClient.Builder builder = new OkHttpClient().newBuilder();
+    static OkHttpClient.Builder builder = new OkHttpClient.Builder()
+            .connectTimeout(1, TimeUnit.MINUTES)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(15, TimeUnit.SECONDS);
 
     public static Retrofit getClient(Context mContext, boolean is_dev, final String PAYMENTEZ_CLIENT_APP_CODE, final String PAYMENTEZ_CLIENT_APP_KEY) {
-        if (retrofit==null) {
+        if (retrofit == null) {
             String SERVER_URL;
-            if (is_dev){
+            if (is_dev) {
                 SERVER_URL = SERVER_DEV_URL;
-            }else{
+            } else {
                 SERVER_URL = SERVER_PROD_URL;
             }
 
@@ -39,7 +43,8 @@ public class PaymenezClient {
             logging.setLevel(HttpLoggingInterceptor.Level.BODY);
 
             builder.addInterceptor(new Interceptor() {
-                @Override public Response intercept(Chain chain) throws IOException {
+                @Override
+                public Response intercept(Chain chain) throws IOException {
                     Request request = chain.request().newBuilder().addHeader("Content-Type", "application/json")
                             .addHeader("Auth-Token", PaymentezUtils.getAuthToken(PAYMENTEZ_CLIENT_APP_CODE, PAYMENTEZ_CLIENT_APP_KEY))
                             .build();

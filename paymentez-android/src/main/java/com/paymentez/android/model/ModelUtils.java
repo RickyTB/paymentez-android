@@ -1,6 +1,6 @@
 package com.paymentez.android.model;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.text.TextUtils;
 
 import java.util.Calendar;
